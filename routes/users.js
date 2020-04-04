@@ -1,5 +1,5 @@
 const { celebrate, Joi } = require('celebrate');
-const { getUserObj } = require('./celebrate_obj/celebrate-obj');
+const { getUserObj } = require('../celebrate_obj/celebrate-obj.js');
 const usersRouter = require('express').Router();
 const { getUsers, getUser } = require('../controllers/users');
 const NotFoundError = require('../errors/not-found-err');
