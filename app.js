@@ -18,7 +18,7 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 	useFindAndModify: false,
 })
 	.then(() => console.log('Соединение с базой данных установлено'))
-	.catch((err) => console.log(err.message)); //не знаю что делать с этой ошибкой,
+	.catch((err) => console.log(err.message)); // не знаю что делать с этой ошибкой,
 // тут ведь никак не впилить next
 app.use(bodyParser.json());
 
@@ -37,15 +37,16 @@ app.use(errorLogger);
 app.use(errors());
 
 app.use((err, req, res, next) => {
-  const { statusCode = 500, message } = err;
+	const { statusCode = 500, message } = err;
 
-  res
-      .status(statusCode)
-      .send({
-          message: statusCode === 500
-              ? 'На сервере произошла ошибка'
-              : message
-      });
+	res
+		.status(statusCode)
+		.send({
+			message: statusCode === 500
+				? 'На сервере произошла ошибка'
+				: message,
+		});
+	next();
 });
 
 app.listen(PORT, () => {
