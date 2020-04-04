@@ -2,13 +2,14 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { celebrate, errors } = require('celebrate');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const { PORT = 3000 } = process.env;
 const app = express();
 const usersRouter = require('./routes/users.js');
 const cardsRouter = require('./routes/cards.js');
 const { createUser, login } = require('./controllers/users.js');
-const { loginObj, createUserObj, authObj } = require('./celebrate_obj/celebrate-obj');
+const { loginObj, createUserObj, authObj } = require('./celebrate_obj/celebrate-obj.js');
 const auth = require('./middlewares/auth.js');
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {
@@ -21,6 +22,8 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 // тут ведь никак не впилить next
 app.use(bodyParser.json());
 
+app.use(requestLogger);
+
 app.post('/signin', celebrate(loginObj), login);
 
 app.post('/signup', celebrate(createUserObj), createUser);
@@ -28,6 +31,8 @@ app.post('/signup', celebrate(createUserObj), createUser);
 app.use('/', celebrate(authObj), auth, cardsRouter);
 
 app.use('/', celebrate(authObj), auth, usersRouter);
+
+app.use(errorLogger);
 
 app.use(errors());
 
