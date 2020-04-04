@@ -1,6 +1,8 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const NotFoundError = require('../errors/not-found-err');
+const InvalidDataErr = require('../errors/invalid-data-err');
 
 module.exports.getUsers = (req, res) => {
 	User.find({})
@@ -15,7 +17,7 @@ module.exports.getUser = (req, res) => {
 		.catch(() => res.status(404).send({ message: 'Пользователь не найден' }));
 };
 
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
 	const {
 		name, about, avatar, email,
 	} = req.body;
@@ -28,16 +30,16 @@ module.exports.createUser = (req, res) => {
 		}))
 		.catch((err) => {
 			if (err.name === 'ValidationError') {
-				res.status(400).send({ message: `Введенные данные некорректны: ${err.message}` });
+        next(new InvalidDataErr(`Введенные данные некорректны: ${err.message}`));
 			} else if (err.message.includes('E11000 duplicate key error')) {
-				res.status(500).send({ message: 'Пользователь с таким имейлом уже зарегистрирован' });
+        next(new InvalidDataErr('Пользователь с таким имейлом уже зарегистрирован'));
 			} else {
-				res.status(500).send({ message: err.message });
+				next(err);
 			}
 		});
 };
 
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
 	const { email, password } = req.body;
 
 	return User.findUser(email, password)
@@ -53,6 +55,6 @@ module.exports.login = (req, res) => {
 			res.status(200).send({ token });
 		})
 		.catch(() => {
-			res.status(401).send({ message: 'Неправильные почта или пароль' });
+      next(new NotFoundError('Неправильные почта или пароль'));
 		});
 };
