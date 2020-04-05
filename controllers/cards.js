@@ -1,21 +1,22 @@
 const Card = require('../models/card');
+const InvalidDataErr = require('../errors/invalid-data-err');
 
-module.exports.getCards = (req, res) => {
+module.exports.getCards = (req, res, next) => {
 	Card.find({})
 		.then((cards) => res.send({ data: cards }))
-		.catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+		.catch((err) => next(err));
 };
 
-module.exports.createCard = (req, res) => {
+module.exports.createCard = (req, res, next) => {
 	const { name, link } = req.body;
 	const owner = req.user._id;
 	Card.create({ name, link, owner })
 		.then((card) => res.send({ data: card }))
-		.catch((err) => res.status(500).send({ message: err.message }));
+		.catch(() => next(new InvalidDataErr('Проверьте корректность данных')));
 };
 
-module.exports.removeCard = (req, res) => {
+module.exports.removeCard = (req, res, next) => {
 	Card.findByIdAndRemove(req.params.cardId)
 		.then((user) => res.send({ data: user }))
-		.catch((err) => res.status(500).send({ message: err.message }));
+		.catch((err) => next(err));
 };

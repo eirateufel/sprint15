@@ -1,21 +1,33 @@
+const { NODE_ENV, JWT_SECRET } = process.env;
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const NotFoundError = require('../errors/not-found-err');
+const InvalidDataErr = require('../errors/invalid-data-err');
 
-module.exports.getUsers = (req, res) => {
+
+module.exports.getUsers = (req, res, next) => {
 	User.find({})
 		.then((users) => res.send({ data: users }))
-		.catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+		.catch(next);
 };
 
-module.exports.getUser = (req, res) => {
-	const { id } = req.body;
-	User.findOne({ ObjectId: id })
-		.then((user) => res.send({ data: user }))
-		.catch(() => res.status(404).send({ message: 'Пользователь не найден' }));
+module.exports.getUser = (req, res, next) => {
+	const { id } = req.params;
+	User.findOne({ _id: id })
+		.then((user) => {
+			if (!user) {
+				return (next(new NotFoundError('Пользователь не найден')));
+			}
+			res.send({ data: user });
+			return true;
+		})
+		.catch((err) => {
+			next(err);
+		});
 };
 
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
 	const {
 		name, about, avatar, email,
 	} = req.body;
@@ -28,21 +40,21 @@ module.exports.createUser = (req, res) => {
 		}))
 		.catch((err) => {
 			if (err.name === 'ValidationError') {
-				res.status(400).send({ message: `Введенные данные некорректны: ${err.message}` });
+				next(new InvalidDataErr(`Введенные данные некорректны: ${err.message}`));
 			} else if (err.message.includes('E11000 duplicate key error')) {
-				res.status(500).send({ message: 'Пользователь с таким имейлом уже зарегистрирован' });
+				next(new InvalidDataErr('Пользователь с таким имейлом уже зарегистрирован'));
 			} else {
-				res.status(500).send({ message: err.message });
+				next(err);
 			}
 		});
 };
 
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
 	const { email, password } = req.body;
 
 	return User.findUser(email, password)
 		.then((user) => {
-			const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
+			const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' });
 
 			res.cookie('jwt', token, {
 				maxAge: 3600000 * 24 * 7,
@@ -53,6 +65,6 @@ module.exports.login = (req, res) => {
 			res.status(200).send({ token });
 		})
 		.catch(() => {
-			res.status(401).send({ message: 'Неправильные почта или пароль' });
+			next(new InvalidDataErr('Неправильные почта или пароль'));
 		});
 };
