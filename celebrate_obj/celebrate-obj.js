@@ -19,7 +19,7 @@ const createUserObj = {
 
 const getUserObj = {
 	body: Joi.object().keys({
-		id: Joi.string().required().min(1),
+		id: Joi.string().required().min(24).max(24),
 	}),
 };
 
