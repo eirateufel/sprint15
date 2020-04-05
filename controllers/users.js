@@ -1,7 +1,6 @@
 const { NODE_ENV, JWT_SECRET } = process.env;
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { ObjectId } = require('mongodb');
 const User = require('../models/user');
 const NotFoundError = require('../errors/not-found-err');
 const InvalidDataErr = require('../errors/invalid-data-err');
@@ -19,8 +18,9 @@ module.exports.getUser = (req, res, next) => {
 		.then((user) => {
 			if (!user) {
 				next(new NotFoundError('Пользователь не найден'));
+			} else {
+				res.send({ data: user });
 			}
-			res.send({ data: user });
 		})
 		.catch((err) => {
 			next(err);
