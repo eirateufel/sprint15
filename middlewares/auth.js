@@ -1,4 +1,4 @@
-//const { NODE_ENV, JWT_SECRET } = process.env;
+const { NODE_ENV, JWT_SECRET } = process.env;
 const jwt = require('jsonwebtoken');
 const AuthReqError = require('../errors/auth-required-err');
 
@@ -15,8 +15,7 @@ function makeToken(req, authorization) {
 	let payload;
 
 	try {
-    payload = jwt.verify(token, 'dev-secret');
-		//payload = jwt.verify(token, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret');
+		payload = jwt.verify(token, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret');
 	} catch (err) {
 		throw new AuthReqError('Для выполнения действия необходима авторизация');
 	}
