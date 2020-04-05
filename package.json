@@ -1,14 +1,14 @@
 {
   "name": "Sprint12",
   "version": "1.0.0",
-  "description": "",
+  "description": "looks like instagram but its not",
   "main": "index.js",
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "eira teufel",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
