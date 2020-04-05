@@ -17,10 +17,10 @@ module.exports.getUser = (req, res, next) => {
 	User.findOne({ _id: id })
 		.then((user) => {
 			if (!user) {
-				next(new NotFoundError('Пользователь не найден'));
-			} else {
-				res.send({ data: user });
+				return (next(new NotFoundError('Пользователь не найден')));
 			}
+			res.send({ data: user });
+			return true;
 		})
 		.catch((err) => {
 			next(err);
