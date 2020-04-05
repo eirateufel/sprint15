@@ -4,11 +4,14 @@ const PermReqError = require('../errors/perm-required-err');
 
 module.exports.doesCardExist = (req, res, next) => {
 	Card.findById(req.params.cardId)
-		.then(() => {
-			next();
+		.then((card) => {
+			if (!card) {
+				return (next(new NotFoundError('Карточка, которую вы пытаетесь удалить, не найдена')));
+			}
+			return (next());
 		})
-		.catch(() => {
-			next(new NotFoundError('Карточка, которую вы пытаетесь удалить, не найдена'));
+		.catch((err) => {
+			next(err);
 		});
 };
 
