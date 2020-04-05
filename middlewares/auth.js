@@ -1,5 +1,6 @@
 const { NODE_ENV, JWT_SECRET } = process.env;
 const jwt = require('jsonwebtoken');
+const Promise = require('promise');
 const AuthReqError = require('../errors/auth-required-err');
 
 function getAuth(req) {
@@ -7,8 +8,9 @@ function getAuth(req) {
 	if (!authorization || !authorization.startsWith('Bearer ')) {
 		throw new AuthReqError('Для выполнения действия необходима авторизация');
 	}
-
-	return authorization;
+	return new Promise(((resolve) => {
+		resolve(authorization);
+	}));
 }
 
 function makeToken(req, authorization) {
