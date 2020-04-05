@@ -15,7 +15,7 @@ module.exports.getUsers = (req, res, next) => {
 
 module.exports.getUser = (req, res, next) => {
 	const { id } = req.params;
-	User.findOne({ _id: ObjectId(id) })
+	User.findOne({ _id: id })
 		.then((user) => {
 			if (!user) {
 				next(new NotFoundError('Пользователь не найден'));
