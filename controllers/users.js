@@ -1,9 +1,11 @@
 const { NODE_ENV, JWT_SECRET } = process.env;
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { ObjectId } = require('mongodb');
 const User = require('../models/user');
 const NotFoundError = require('../errors/not-found-err');
 const InvalidDataErr = require('../errors/invalid-data-err');
+
 
 module.exports.getUsers = (req, res, next) => {
 	User.find({})
@@ -12,11 +14,16 @@ module.exports.getUsers = (req, res, next) => {
 };
 
 module.exports.getUser = (req, res, next) => {
-	const { id } = req.body;
-	User.findOne({ ObjectId: id })
-		.then((user) => res.send({ data: user }))
-		.catch(() => {
-			next(new NotFoundError('Пользователь не найден'));
+	const { id } = req.params;
+	User.findOne({ _id: ObjectId(id) })
+		.then((user) => {
+			if (!user) {
+				next(new NotFoundError('Пользователь не найден'));
+			}
+			res.send({ data: user });
+		})
+		.catch((err) => {
+			next(err);
 		});
 };
 
