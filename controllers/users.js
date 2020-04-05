@@ -23,6 +23,7 @@ module.exports.getUser = (req, res, next) => {
 			res.send({ data: user });
 		})
 		.catch((err) => {
+			console.log('here');
 			next(err);
 		});
 };
