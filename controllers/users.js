@@ -5,17 +5,19 @@ const User = require('../models/user');
 const NotFoundError = require('../errors/not-found-err');
 const InvalidDataErr = require('../errors/invalid-data-err');
 
-module.exports.getUsers = (req, res) => {
+module.exports.getUsers = (req, res, next) => {
 	User.find({})
 		.then((users) => res.send({ data: users }))
-		.catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+		.catch(next);
 };
 
-module.exports.getUser = (req, res) => {
+module.exports.getUser = (req, res, next) => {
 	const { id } = req.body;
 	User.findOne({ ObjectId: id })
 		.then((user) => res.send({ data: user }))
-		.catch(() => res.status(404).send({ message: 'Пользователь не найден' }));
+		.catch(() => {
+			next(new NotFoundError('Пользователь не найден'));
+		});
 };
 
 module.exports.createUser = (req, res, next) => {
@@ -56,6 +58,6 @@ module.exports.login = (req, res, next) => {
 			res.status(200).send({ token });
 		})
 		.catch(() => {
-			next(new NotFoundError('Неправильные почта или пароль'));
+			next(new InvalidDataErr('Неправильные почта или пароль'));
 		});
 };
