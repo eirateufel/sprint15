@@ -31,9 +31,9 @@ module.exports.createUser = (req, res, next) => {
 		}))
 		.catch((err) => {
 			if (err.name === 'ValidationError') {
-        next(new InvalidDataErr(`Введенные данные некорректны: ${err.message}`));
+				next(new InvalidDataErr(`Введенные данные некорректны: ${err.message}`));
 			} else if (err.message.includes('E11000 duplicate key error')) {
-        next(new InvalidDataErr('Пользователь с таким имейлом уже зарегистрирован'));
+				next(new InvalidDataErr('Пользователь с таким имейлом уже зарегистрирован'));
 			} else {
 				next(err);
 			}
@@ -56,6 +56,6 @@ module.exports.login = (req, res, next) => {
 			res.status(200).send({ token });
 		})
 		.catch(() => {
-      next(new NotFoundError('Неправильные почта или пароль'));
+			next(new NotFoundError('Неправильные почта или пароль'));
 		});
 };
