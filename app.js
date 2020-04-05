@@ -19,8 +19,8 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 	useFindAndModify: false,
 })
 	.then(() => console.log('Соединение с базой данных установлено'))
-	.catch((err) => console.log(err.message)); // не знаю что делать с этой ошибкой,
-// тут ведь никак не впилить next
+	.catch((err) => console.log(err.message));
+
 app.use(bodyParser.json());
 
 app.use(requestLogger);
