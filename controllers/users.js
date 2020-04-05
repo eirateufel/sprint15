@@ -1,4 +1,3 @@
-const { NODE_ENV, JWT_SECRET } = process.env;
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
@@ -31,9 +30,9 @@ module.exports.createUser = (req, res, next) => {
 		}))
 		.catch((err) => {
 			if (err.name === 'ValidationError') {
-				next(new InvalidDataErr(`Введенные данные некорректны: ${err.message}`));
+        next(new InvalidDataErr(`Введенные данные некорректны: ${err.message}`));
 			} else if (err.message.includes('E11000 duplicate key error')) {
-				next(new InvalidDataErr('Пользователь с таким имейлом уже зарегистрирован'));
+        next(new InvalidDataErr('Пользователь с таким имейлом уже зарегистрирован'));
 			} else {
 				next(err);
 			}
@@ -45,7 +44,7 @@ module.exports.login = (req, res, next) => {
 
 	return User.findUser(email, password)
 		.then((user) => {
-			const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' });
+			const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
 
 			res.cookie('jwt', token, {
 				maxAge: 3600000 * 24 * 7,
@@ -56,6 +55,6 @@ module.exports.login = (req, res, next) => {
 			res.status(200).send({ token });
 		})
 		.catch(() => {
-			next(new NotFoundError('Неправильные почта или пароль'));
+      next(new NotFoundError('Неправильные почта или пароль'));
 		});
 };
