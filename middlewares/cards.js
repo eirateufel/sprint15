@@ -5,7 +5,11 @@ const PermReqError = require('../errors/perm-required-err');
 module.exports.doesCardExist = (req, res, next) => {
 	Card.findById(req.params.cardId)
 		.then((card) => {
-			if (card) { next(); } else { throw new NotFoundError('Карточка, которую вы пытаетесь удалить, не найдена'); }
+			if (!card) {
+				throw new NotFoundError('Карточка, которую вы пытаетесь удалить, не найдена');
+			} else {
+				return true;
+			}
 		})
 		.catch((err) => {
 			next(err);
@@ -15,7 +19,11 @@ module.exports.doesCardExist = (req, res, next) => {
 module.exports.checkOwner = (req, res, next) => {
 	Card.findById(req.params.cardId)
 		.then((card) => {
-			if (card.owner.toString() === req.user._id.toString()) { next(); } else { throw new PermReqError('Недостаточно прав'); }
+			if (card.owner.toString() !== req.user._id.toString()) {
+				throw new PermReqError('Недостаточно прав');
+			} else {
+				return true;
+			}
 		})
 		.catch((err) => {
 			next(err);
