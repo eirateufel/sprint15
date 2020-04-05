@@ -7,6 +7,7 @@ function getAuth(req) {
 	if (!authorization || !authorization.startsWith('Bearer ')) {
 		throw new AuthReqError('Для выполнения действия необходима авторизация');
 	}
+
 	return authorization;
 }
 
